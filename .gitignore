@@ -26,11 +26,21 @@ model_checkpints/*
 *.jpeg
 *.pdf
 
-# Exception for comparison results
+# Exception for comparison results and architecture diagrams
 !comparison_results/
 !comparison_results/*.png
 !comparison_results/*.jpg
 !comparison_results/*.pdf
+!moe_conceptual.png
+!iwmn_conceptual.png
+!moe_architecture.png
+!iwmn_architecture.png
+!moe_vs_iwmn_comparison.png
+!expert_usage_by_digit.png
+!iwmn_training_curves.png
+!moe_training_curves.png
+!activation_modulation_visualization.png
+!training_curves.png
 
 # IDE specific files
 .idea/
