@@ -1,6 +1,12 @@
-# Mixture of Experts (MoE) PyTorch Implementation
+# Comparative Study: Mixture of Experts (MoE) vs Iterative Weight Modulation Networks (IWMN)
 
-This project implements a Mixture of Experts (MoE) neural network architecture for MNIST digit classification using PyTorch. The MoE model uses a gating network to dynamically route inputs to different expert networks and combines their outputs.
+This project is a comprehensive study comparing two neural network architectures:
+
+1. **Mixture of Experts (MoE)**: A traditional approach where multiple expert networks are combined with a gating mechanism that dynamically routes inputs.
+
+2. **Iterative Weight Modulation Network (IWMN)**: A novel approach that dynamically adjusts network activations through multiple inference passes.
+
+Both architectures are implemented and evaluated on MNIST digit classification using PyTorch.
 
 ## Project Structure
 

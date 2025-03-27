@@ -26,6 +26,12 @@ model_checkpints/*
 *.jpeg
 *.pdf
 
+# Exception for comparison results
+!comparison_results/
+!comparison_results/*.png
+!comparison_results/*.jpg
+!comparison_results/*.pdf
+
 # IDE specific files
 .idea/
 .vscode/
