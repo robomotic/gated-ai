@@ -1,0 +1,39 @@
+# Virtual Environments
+.venv
+venv/
+env/
+ENV/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Project specific directories
+data/*
+logs/*
+model_checkpints/*
+
+# Generated images and documentation
+*.png
+*.jpg
+*.jpeg
+*.pdf
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Environment variables
+.env
