@@ -10,6 +10,7 @@ from tqdm import tqdm
 import time
 
 from models import IWMNMNISTClassifier
+from utils import get_normalization_stats, create_transforms
 
 
 def train_batch(model, data, target, optimizer, criterion, device, num_iterations=3):
@@ -171,25 +172,34 @@ def main():
     num_iterations = 3  # Number of weight modulation iterations
     modulation_strength = 0.1  # Strength of weight modulation
     
-    # Data transformation
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
-    ])
+    # Load raw dataset for computing statistics
+    raw_train_dataset = datasets.MNIST(
+        root='data',
+        train=True,
+        download=True,
+        transform=transforms.ToTensor()
+    )
     
-    # Load MNIST dataset
+    # Calculate normalization statistics dynamically
+    mean, std = get_normalization_stats('mnist', raw_train_dataset)
+    
+    # Create transforms with calculated statistics
+    train_transform = create_transforms(mean, std)
+    test_transform = create_transforms(mean, std)
+    
+    # Load MNIST dataset with proper transforms
     train_dataset = datasets.MNIST(
         root='data', 
         train=True, 
         download=True, 
-        transform=transform
+        transform=train_transform
     )
     
     test_dataset = datasets.MNIST(
         root='data', 
         train=False, 
         download=True, 
-        transform=transform
+        transform=test_transform
     )
     
     # Create data loaders

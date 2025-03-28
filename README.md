@@ -151,27 +151,80 @@ class SimpleIWMN(nn.Module):
 
 ## Data Preprocessing
 
-For the MNIST dataset, we use the following normalization:
+Instead of hardcoding normalization values, we should dynamically compute these statistics from the dataset. Here are recommended best practices for normalization:
+
+### 1. Calculate Statistics from the Training Set
 
 ```python
-transforms.Normalize((0.1307,), (0.3081,))
+def calculate_normalization_stats(dataset):
+    loader = DataLoader(dataset, batch_size=1000, num_workers=4, shuffle=False)
+    mean = 0.
+    std = 0.
+    total_samples = 0
+    
+    for data, _ in loader:
+        batch_samples = data.size(0)
+        data = data.view(batch_samples, data.size(1), -1)
+        mean += data.mean(2).sum(0)
+        std += data.std(2).sum(0)
+        total_samples += batch_samples
+    
+    mean /= total_samples
+    std /= total_samples
+    
+    return mean, std
+
+# Usage example
+train_dataset = datasets.MNIST(root='data', train=True, download=True, transform=transforms.ToTensor())
+mean, std = calculate_normalization_stats(train_dataset)
+print(f"Dataset mean: {mean.item():.4f}, std: {std.item():.4f}")
+
+# Apply the calculated statistics
+transforms.Normalize((mean.item(),), (std.item(),))
 ```
 
-These specific values represent:
+### 2. Apply Consistent Normalization
 
-- **0.1307**: The mean pixel value of the MNIST training dataset. Since MNIST contains grayscale images with mostly black backgrounds (0) and white digits (1), the overall mean is relatively low.
+Once calculated, apply the same statistics to all splits:
 
-- **0.3081**: The standard deviation of pixel values across the MNIST dataset, capturing how much values typically vary from the mean.
+```python
+# Create a transform pipeline with dynamic normalization
+def create_transforms(mean, std):
+    return transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Normalize((mean,), (std,))
+    ])
 
-This normalization brings several benefits:
+# Apply to all dataset splits
+train_transform = create_transforms(mean.item(), std.item())
+val_transform = create_transforms(mean.item(), std.item())
+test_transform = create_transforms(mean.item(), std.item())
+```
 
-1. **Training Stability**: Neural networks train more effectively when input features have a mean of 0 and a standard deviation of 1.
+### 3. Cache for Efficiency
 
-2. **Faster Convergence**: Normalized inputs generally lead to faster convergence during training.
+For larger datasets, computing statistics can be time-consuming. Calculate once and cache the results:
 
-3. **Numerical Stability**: Having values centered around 0 helps prevent numerical issues during training.
+```python
+def get_normalization_stats(dataset_name, recalculate=False):
+    stats_file = f"normalization_stats_{dataset_name}.json"
+    
+    if not recalculate and os.path.exists(stats_file):
+        with open(stats_file, 'r') as f:
+            stats = json.load(f)
+            return stats['mean'], stats['std']
+    
+    # Calculate stats as shown above
+    mean, std = calculate_normalization_stats(dataset)
+    
+    # Save for future use
+    with open(stats_file, 'w') as f:
+        json.dump({'mean': mean.item(), 'std': std.item()}, f)
+    
+    return mean.item(), std.item()
+```
 
-4. **Consistency**: Using the same normalization across training, validation, and testing ensures consistently preprocessed data.
+Dynamically computing normalization parameters ensures adaptability to different datasets and better scientific reproducibility by removing hardcoded constants.
 
 ## Model Comparison Results
 
@@ -191,10 +244,13 @@ Our experiments show that IWMN provides competitive accuracy while using signifi
 | MoE | Experts=16, k=4 | 3,269,040 | 94.37 | 0.017304 |
 | IWMN | Iterations=1 | 212,500 | 92.70 | 0.009407 |
 | IWMN | Iterations=3 | 212,500 | 93.19 | 0.010160 |
+| IWMN | Iterations=4 | 331,540 | 97.93 | 0.003553 |
+| IWMN | Iterations=5 | 331,540 | 97.86 | 0.002591 |
+| IWMN | Iterations=6 | 331,540 | 97.55 | 0.003284 |
 
 ### Key Findings
 
-1. **Parameter Efficiency**: IWMN achieves comparable accuracy with significantly fewer parameters. The best IWMN model uses only 212,500 parameters compared to MoE's 3,269,040 parameters for similar performance.
+1. **Parameter Efficiency**: IWMN achieves comparable or superior accuracy with significantly fewer parameters. Our best IWMN model (4 iterations) achieved 97.93% accuracy with only 331,540 parameters compared to MoE's 3,269,040 parameters for 94.37% accuracy.
 
 2. **Memory Efficiency**: IWMN's activation-based modulation approach is much more memory-efficient than direct weight modulation or using multiple expert networks.
 
@@ -202,9 +258,31 @@ Our experiments show that IWMN provides competitive accuracy while using signifi
 
 4. **Scalability**: While MoE scales by adding more experts (increasing parameters linearly), IWMN scales by adding more iterations (minimal parameter increase).
 
+5. **Optimal Iteration Count**: Our extended study reveals that there's an optimal number of iterations (4 for MNIST), beyond which performance plateaus or even degrades.
+
+6. **Accuracy-Complexity Tradeoff**: IWMN offers a flexible tradeoff between accuracy and computational complexity by simply adjusting the number of iterations without changing the model architecture.
+
 ![Model Comparison](comparison_results/model_comparison.png)
 
 Detailed comparison reports are generated automatically when running the comparison script and can be found in the `comparison_results` directory.
+
+## Inspiration and Related Work
+
+The IWMN architecture in this project was inspired by (though not a direct implementation of) the work of Danko Nikolić on gating neural networks. For more information on his approach, visit his official website: [https://gating.ai/](https://gating.ai/)
+
+Gating is a result of several decades of scientific work. Here are some key scientific publications that led to Gating technology:
+
+- Nikolić, D. (2023). Where is the mind within the brain? Transient selection of subnetworks by metabotropic receptors and G protein-gated ion channels. Computational Biology and Chemistry, 103, 107820.
+
+- Nikolić, D. (2015). Practopoiesis: Or how life fosters a mind. Journal of Theoretical Biology, 373, 40-61.
+
+- Nikolić, D. (2017). Why deep neural nets cannot ever match biological intelligence and what to do about it?. International Journal of Automation and Computing, 14(5), 532-541.
+
+- Lazar, A., Lewis, C., Fries, P., Singer, W., & Nikolić, D. (2021). Visual exposure enhances stimulus encoding and persistence in primary cortex. Proceedings of the National Academy of Sciences, 118(43), e2105276118.
+
+- Nikolić, D., Häusler, S., Singer, W., & Maass, W. (2009). Distributed fading memory for stimulus properties in the primary visual cortex. PLoS Biology, 7(12), e1000260.
+
+- Nikolić, D. (2009). Is synaesthesia actually ideaestesia? An inquiry into the nature of the phenomenon. In Proceedings of the Third International Congress on Synaesthesia, Science & Art (pp. 26-29).
 
 ## Customization
 

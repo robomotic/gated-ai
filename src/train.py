@@ -10,6 +10,7 @@ from tqdm import tqdm
 import time
 
 from models import MoEMNISTClassifier
+from utils import get_normalization_stats, create_transforms
 
 
 def train(model, train_loader, optimizer, criterion, device, epoch):
@@ -143,25 +144,34 @@ def main():
     num_experts = 4
     k = 2  # Top-k experts to use per sample
     
-    # Data transformation
-    transform = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.1307,), (0.3081,))
-    ])
+    # Load raw dataset for computing statistics
+    raw_train_dataset = datasets.MNIST(
+        root='data',
+        train=True,
+        download=True,
+        transform=transforms.ToTensor()
+    )
     
-    # Load MNIST dataset
+    # Calculate normalization statistics dynamically
+    mean, std = get_normalization_stats('mnist', raw_train_dataset)
+    
+    # Create transforms with calculated statistics
+    train_transform = create_transforms(mean, std)
+    test_transform = create_transforms(mean, std)
+    
+    # Load MNIST dataset with proper transforms
     train_dataset = datasets.MNIST(
         root='data', 
         train=True, 
         download=True, 
-        transform=transform
+        transform=train_transform
     )
     
     test_dataset = datasets.MNIST(
         root='data', 
         train=False, 
         download=True, 
-        transform=transform
+        transform=test_transform
     )
     
     # Create data loaders
