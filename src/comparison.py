@@ -177,7 +177,8 @@ def run_comparison():
         {'num_iterations': 2, 'modulation_strength': 0.1},
         {'num_iterations': 3, 'modulation_strength': 0.1},
         {'num_iterations': 4, 'modulation_strength': 0.1},
-        {'num_iterations': 5, 'modulation_strength': 0.1}
+        {'num_iterations': 5, 'modulation_strength': 0.1},
+        {'num_iterations': 6, 'modulation_strength': 0.1}
     ]
     
     # Results storage

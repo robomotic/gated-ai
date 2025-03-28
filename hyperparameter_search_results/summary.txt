@@ -1,0 +1,31 @@
+Hyperparameter Search Results Summary
+========================================
+
+Number of models trained: 9
+
+Top 5 Models:
+1. LR=0.001, HS=512, NE=4, k=2
+   Val Acc: 97.40%, Test Acc: 97.65%, Params: 1631340, Time: 69.94s
+
+2. LR=0.001, HS=256, NE=4, k=2
+   Val Acc: 97.22%, Test Acc: 97.28%, Params: 817260, Time: 62.08s
+
+3. LR=0.001, HS=128, NE=4, k=2
+   Val Acc: 96.75%, Test Acc: 97.16%, Params: 410220, Time: 65.92s
+
+4. LR=0.01, HS=512, NE=4, k=2
+   Val Acc: 95.79%, Test Acc: 96.08%, Params: 1631340, Time: 118.45s
+
+5. LR=0.0001, HS=512, NE=4, k=2
+   Val Acc: 95.75%, Test Acc: 96.17%, Params: 1631340, Time: 84.64s
+
+
+Best Parameters:
+Learning Rate: 0.001
+Hidden Size: 512
+Number of Experts: 4
+k: 2
+Parameters: 1631340
+Validation Accuracy: 97.40%
+Test Accuracy: 97.65%
+Training Time: 69.94 seconds
