@@ -90,10 +90,10 @@ class MoEMNISTClassifier(nn.Module):
     """
     MoE model for MNIST classification.
     """
-    def __init__(self, num_experts=4, k=2):
+    def __init__(self, num_experts=4, k=2, hidden_size=256):
         super(MoEMNISTClassifier, self).__init__()
         self.input_size = 28 * 28  # MNIST image size
-        self.hidden_size = 256
+        self.hidden_size = hidden_size  # Configurable hidden size
         self.output_size = 10  # 10 digit classes
         
         self.moe = MixtureOfExperts(
@@ -451,10 +451,10 @@ class IWMNMNISTClassifier(nn.Module):
     IWMN model for MNIST classification.
     Memory-efficient implementation.
     """
-    def __init__(self, num_iterations=3, modulation_strength=0.1):
+    def __init__(self, num_iterations=3, modulation_strength=0.1, hidden_size=128, dropout_rate=0.2):
         super(IWMNMNISTClassifier, self).__init__()
         self.input_size = 28 * 28  # MNIST image size
-        self.hidden_size = 128     # Reduced hidden size for memory efficiency
+        self.hidden_size = hidden_size  # Configurable hidden size
         self.output_size = 10      # 10 digit classes
         
         # Create simplified IWMN that modulates activations instead of weights
@@ -463,7 +463,8 @@ class IWMNMNISTClassifier(nn.Module):
             hidden_size=self.hidden_size,
             output_size=self.output_size,
             num_iterations=num_iterations,
-            modulation_strength=modulation_strength
+            modulation_strength=modulation_strength,
+            dropout_rate=dropout_rate
         )
         
     def forward(self, x, target=None, return_modulations=False):

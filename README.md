@@ -51,6 +51,97 @@ source venv/bin/activate
 
 ## Usage
 
+### Recommended Workflow
+
+For optimal results, we recommend the following workflow sequence:
+
+1. Run hyperparameter search for both models
+2. Train final models with optimal parameters
+3. Run performance comparisons
+4. Analyze results
+
+### Hyperparameter Tuning
+
+Before training the final models, you should run hyperparameter tuning to find optimal configurations for both architectures. The project includes comprehensive grid search implementations for both models.
+
+#### MoE Hyperparameter Search
+
+```bash
+make hyperparameter-search
+```
+
+This will run a grid search over the following hyperparameters:
+- **Learning Rate**: Controls the step size during optimization (typically 0.001, 0.0005, 0.0001)
+- **Hidden Size**: Number of neurons in hidden layers (128, 256, 512)
+- **Number of Experts**: Total expert networks in the ensemble (4, 8, 16)
+- **K Value**: Number of experts activated per input (1, 2, 4)
+
+The hyperparameter search process:
+1. Creates a grid of all possible hyperparameter combinations
+2. Trains a model for each combination for a fixed number of epochs
+3. Evaluates each model on validation data
+4. Tracks key metrics:
+   - Validation accuracy
+   - Test accuracy
+   - Training time
+   - Parameter count
+   - Learning curves
+5. Generates detailed visualizations:
+   - Learning rate vs. accuracy plots
+   - Hidden size vs. accuracy plots
+   - Number of experts vs. accuracy plots
+   - K value vs. accuracy plots
+   - Parameter efficiency comparisons
+6. Produces a summary report with the top-performing configurations
+7. Saves all results to `hyperparameter_search_results/`
+
+#### IWMN Hyperparameter Search
+
+```bash
+make iwmn-hyperparameter-search
+```
+
+This will run a grid search over the following IWMN-specific hyperparameters:
+- **Learning Rate**: Controls the step size during optimization (typically 0.001, 0.0005, 0.0001)
+- **Hidden Size**: Number of neurons in hidden layers (128, 256, 512)
+- **Number of Iterations**: How many refinement passes to perform (2, 3, 4, 5)
+- **Modulation Strength**: How strongly to adjust activations (0.05, 0.1, 0.2, 0.5)
+- **Dropout Rate**: Regularization parameter to prevent overfitting (0.0, 0.2, 0.5)
+
+The IWMN hyperparameter search process:
+1. Creates a grid of all possible hyperparameter combinations
+2. Trains a model for each combination for a fixed number of epochs
+3. Evaluates each model on validation data
+4. Tracks key metrics:
+   - Validation accuracy
+   - Test accuracy
+   - Training time
+   - Parameter count
+   - Inference time per sample
+   - Learning curves
+5. Generates detailed visualizations:
+   - Number of iterations vs. accuracy plots
+   - Modulation strength vs. accuracy plots
+   - Iteration count vs. inference time trade-offs
+   - Accuracy vs. computational cost analysis
+   - Learning curves for different configurations
+6. Produces a summary report with the top-performing configurations
+7. Saves all results to `iwmn_hyperparameter_results/`
+
+#### Analyzing Hyperparameter Search Results
+
+After running the hyperparameter searches, you can analyze the results:
+
+1. **Best Configurations**: Check the summary reports in the respective results directories to find the best-performing hyperparameter combinations.
+
+2. **Performance Visualization**: Review the generated plots to understand how each hyperparameter affects model performance.
+
+3. **Trade-off Analysis**: 
+   - For MoE: Analyze the trade-off between number of experts, k value, and accuracy
+   - For IWMN: Analyze the trade-off between number of iterations, modulation strength, and inference time
+
+4. **Selecting Final Parameters**: Use the analysis to select the optimal hyperparameters for your specific requirements (accuracy vs. speed vs. model size).
+
 ### Training
 
 To train the MoE model on MNIST:
@@ -59,25 +150,37 @@ To train the MoE model on MNIST:
 make train
 ```
 
-This will:
+To train the IWMN model on MNIST:
+
+```bash
+make train-iwmn
+```
+
+These commands will:
 - Download the MNIST dataset (if not already downloaded)
-- Train the MoE model for 5 epochs
-- Save the best model to `model_checkpoints/moe_best.pth`
-- Generate training curves and expert usage visualizations
+- Train the model for multiple epochs
+- Save the best model to `model_checkpoints/`
+- Generate training curves and visualization
 
 ### Testing
 
-To evaluate the trained model:
+To evaluate the trained MoE model:
 
 ```bash
 make test
 ```
 
-This will:
+To evaluate the trained IWMN model:
+
+```bash
+make test-iwmn
+```
+
+These commands will:
 - Load the previously trained model
 - Evaluate it on the MNIST test set
-- Generate visualizations of expert specialization
-- Show misclassified examples
+- Generate visualizations of model behavior
+- Display performance metrics
 
 ## Model Architecture
 

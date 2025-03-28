@@ -30,6 +30,14 @@ compare:
 run-iwmn-experiment:
 	python src/run_iwmn_iterations_experiment.py
 
+# Run hyperparameter search for MoE model
+hyperparameter-search:
+	python src/hyperparameter_search.py
+
+# Run hyperparameter search for IWMN model
+iwmn-hyperparameter-search:
+	python src/iwmn_hyperparameter_search.py
+
 # Clean generated files
 clean:
 	rm -rf __pycache__
