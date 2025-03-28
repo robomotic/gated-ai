@@ -243,38 +243,13 @@ This project compares two neural network architectures:
 1. **Mixture of Experts (MoE)**: A traditional approach where multiple expert networks are combined with a gating mechanism.
 2. **Iterative Weight Modulation Network (IWMN)**: A novel approach that dynamically adjusts activations during inference.
 
-### Comparison Results
+### Detailed Performance Results
 
-Our experiments show that IWMN provides competitive accuracy while using significantly fewer parameters compared to MoE:
+For a comprehensive analysis of model performance, including accuracy metrics, parameter counts, and inference times, please refer to the detailed comparison report:
 
-| Model Type | Configuration | Parameters | Accuracy (%) | Inference Time (s) |
-|-----------|--------------|------------|-------------|----------------------|
-| MoE | Experts=1, k=1 | 204,315 | 93.49 | 0.009568 |
-| MoE | Experts=4, k=2 | 817,260 | 97.37 | 0.011885 |
-| MoE | Experts=16, k=4 | 3,269,040 | 94.37 | 0.017304 |
-| IWMN | Iterations=1 | 212,500 | 92.70 | 0.009407 |
-| IWMN | Iterations=3 | 331,540 | 97.89 | 0.010160 |
-| IWMN | Iterations=4 | 331,540 | 97.93 | 0.003691 |
-| IWMN | Iterations=5 | 331,540 | 97.86 | 0.024911 |
-| IWMN | Iterations=6 | 331,540 | 97.55 | 0.011088 |
+[Comparison Report](comparison_results/comparison_report.md)
 
-### Key Findings
-
-1. **Parameter Efficiency**: IWMN achieves comparable or superior accuracy with significantly fewer parameters. Our best IWMN model (4 iterations) achieved 97.93% accuracy with only 331,540 parameters compared to MoE's 3,269,040 parameters for 94.37% accuracy.
-
-2. **Memory Efficiency**: IWMN's activation-based modulation approach is much more memory-efficient than direct weight modulation or using multiple expert networks.
-
-3. **Inference Time**: IWMN maintains competitive inference times even with multiple iterations, making it suitable for real-time applications.
-
-4. **Scalability**: While MoE scales by adding more experts (increasing parameters linearly), IWMN scales by adding more iterations (minimal parameter increase).
-
-5. **Optimal Iteration Count**: Our extended study reveals that there's an optimal number of iterations (4 for MNIST), beyond which performance plateaus or even degrades.
-
-6. **Accuracy-Complexity Tradeoff**: IWMN offers a flexible tradeoff between accuracy and computational complexity by simply adjusting the number of iterations without changing the model architecture.
-
-![Model Comparison](comparison_results/model_comparison.png)
-
-Detailed comparison reports are generated automatically when running the comparison script and can be found in the `comparison_results` directory.
+This report includes detailed tables and visualizations comparing both architectures across multiple configurations and metrics. The comparison report is generated automatically when running the `make compare` or `make run-iwmn-experiment` commands.
 
 ## Inspiration and Related Work
 
